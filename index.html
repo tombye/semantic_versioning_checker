@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Semantic versioning checker</title>
+    <style type="text/css">
+      body,
+      input,
+      select {
+        font-size: 19px;
+      }
+      label,
+      input[type="text"],
+      select {
+        float: left;
+        margin-bottom: 1em;
+      }
+      label {
+        margin-right: 0.5em;
+        clear: left;
+      }
+      input[type="submit"] {
+        display: block;
+        clear: left;
+        margin: 1em 0;
+        font-size: 24px;
+      }
+      .result {
+        border: solid 1px black;
+        padding: 1em;
+      }
+      .result h2 {
+        margin-top: 0;
+      }
+      #answer {
+        font-size: 48px;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Semantic versioning checker</h1>
+    <p>See <a href="http://semver.org">http://semver.org</a> for details</p>
+    <form action="get" method="">
+      <label for="current">The version at the moment</label>
+      <input id="current" name="current" value="" type="text" />
+      <label for="update-type">The type of update</label>
+      <select id="update-type" name="update-type">
+        <option value="2">PATCH (backwards-compatible bug fix)</option>
+        <option value="1">MINOR (functionality in a backwards-compatible manner)</option>
+        <option value="0">MAJOR (an incompatible API change)</option>
+      </select>
+      <input type="submit" value="calculate" id="submit" />
+
+      <div class="result">
+        <h2>Next version</h2>
+        <p id="answer"></p>
+      </div>
+    </form>
+
+    <script type="text/javascript">
+      var calculator = {
+        init : function () {
+          var submitButton = document.getElementById('submit'),
+              _this = this;
+
+          this.current = document.getElementById('current');
+          this.updateType = document.getElementById('update-type');
+
+          submitButton.onclick = function () {
+            var newVersion = _this.calculate();
+
+            document.getElementById('answer').innerHTML = newVersion;
+            return false;
+          };
+        },
+        getCurrentVersion : function () {
+          var val = this.current.value.split('.');
+
+          return [
+            val[0],
+            val[1],
+            val[2]
+          ];
+        },
+        getUpdateTypeIndex : function () {
+          var optionIndex = this.updateType.selectedIndex,
+              selectedOption = this.updateType.options[optionIndex];
+
+          return parseInt(selectedOption.value, 10);
+        },
+        getNewVersion : function (version, updateTypeIndex) {
+          var newTypeNumber = parseInt(version[updateTypeIndex], 10) + 1;
+
+          version[updateTypeIndex] = newTypeNumber;
+          if (updateTypeIndex === 1) {
+            version[2] = 0;
+          }
+          else if (updateTypeIndex === 0) {
+            version[1] = 0;
+            version[2] = 0;
+          }
+          return version.join('.');
+        },
+        calculate : function () {
+          var currentVersion = this.getCurrentVersion(),
+              updateTypeIndex = this.getUpdateTypeIndex();
+
+          return this.getNewVersion(currentVersion, updateTypeIndex);
+        }
+      };
+      calculator.init();
+    </script>
+  </body>
+</html>
